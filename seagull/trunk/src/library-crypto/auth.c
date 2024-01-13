@@ -234,7 +234,11 @@ int createAuthHeaderMD5(char * user, char * password, char * method,
   
   sprintf(result, "Digest username=\"%s\",realm=\"%s\"",user,tmp);
   if (cnonce[0] != '\0') {
-    sprintf(result, "%s,cnonce=\"%s\",nc=%s,qop=%s",result,cnonce,nc,authtype);
+    const char fmt[] = "%s,cnonce=\"%s\",nc=%s,qop=%s";
+    int sz = snprintf(NULL, 0, fmt,result,cnonce,nc,authtype);
+    char buf[sz + 1];
+    snprintf(buf, sizeof buf, fmt,result,cnonce,nc,authtype);
+    sprintf(result, "%s",buf);
   }
   
   // Construct the URI 
@@ -261,8 +265,14 @@ int createAuthHeaderMD5(char * user, char * password, char * method,
   MD5_Final(ha2, &Md5Ctx);
   hashToHex(&ha2[0], &ha2_hex[0]);
   
-  sprintf(result, "%s,uri=\"%s\"",result,tmp);
-  
+  {
+    const char fmt[] = "%s,uri=\"%s\"";
+    int sz = snprintf(NULL, 0, fmt,result,tmp);
+    char buf[sz + 1];
+    snprintf(buf, sizeof buf, fmt,result,tmp);
+    sprintf(result, "%s",buf);
+  }
+
   // Extract the Nonce 
   if ((start = stristr(auth, "nonce=")) == NULL) {
     sprintf(result, "createAuthHeader: couldn't parse nonce");
@@ -291,10 +301,20 @@ int createAuthHeaderMD5(char * user, char * password, char * method,
   MD5_Final(resp, &Md5Ctx);
   hashToHex(&resp[0], &resp_hex[0]);
   
-  sprintf(result, "%s,nonce=\"%s\",response=\"%s\",algorithm=%s",result,tmp,resp_hex,algo);
-  
+   {
+    const char fmt[] = "%s,nonce=\"%s\",response=\"%s\",algorithm=%s";
+    int sz = snprintf(NULL, 0, fmt,result,tmp,resp_hex,algo);
+    char buf[sz + 1];
+    snprintf(buf, sizeof buf, fmt,result,tmp,resp_hex,algo);
+    sprintf(result, "%s",buf);
+  }
+
   if (has_opaque) {
-    sprintf(result, "%s,opaque=\"%s\"",result,opaque);
+	  const char fmt[] = "%s,opaque=\"%s\"";
+	  int sz = snprintf(NULL, 0, fmt,result,opaque);
+	  char buf[sz + 1];
+	  snprintf(buf, sizeof buf, fmt,result,opaque);
+	  sprintf(result, "%s",buf);
   }
   
   return 1;
@@ -592,7 +612,11 @@ int createAuthHeaderAKAv1MD5(char * user, char * aka_OP,
     }
     auts_hex[AUTS64LEN-1]=0;
     
-    sprintf(result, "%s,auts=\"%s\"",result,auts_hex);
+    const char fmt[] = "%s,auts=\"%s\"";
+    int sz = snprintf(NULL, 0, fmt,result,auts_hex);
+    char buf[sz + 1];
+    snprintf(buf, sizeof buf, fmt,result,auts_hex);
+    sprintf(result, "%s",buf);
   }
   
   return 1;
